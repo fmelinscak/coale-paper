@@ -1,0 +1,37 @@
+configuration_file random_seed
+./kru2008/kru2008_eval_design-bb_prior-point.yaml 982018001
+./kru2008/kru2008_eval_design-bb_prior-vague.yaml 982018002
+./kru2008/kru2008_eval_design-pointopt_prior-point.yaml 982018003
+./kru2008/kru2008_eval_design-pointopt_prior-vague.yaml 982018004
+./kru2008/kru2008_eval_design-vagueopt_prior-point.yaml 982018005
+./kru2008/kru2008_eval_design-vagueopt_prior-vague.yaml 982018006
+./kru2008/kru2008_optim_prior-point.yaml 982018007
+./kru2008/kru2008_optim_prior-vague.yaml 982018008
+
+./lsspd2011/lsspd2011_eval_design-pointopt_prior-point.yaml 982018009
+./lsspd2011/lsspd2011_eval_design-pointopt_prior-vague.yaml 982018010
+./lsspd2011/lsspd2011_eval_design-ref_prior-point.yaml 982018011
+./lsspd2011/lsspd2011_eval_design-ref_prior-vague.yaml 982018012
+./lsspd2011/lsspd2011_eval_design-vagueopt_prior-point.yaml 982018013
+./lsspd2011/lsspd2011_eval_design-vagueopt_prior-vague.yaml 982018014
+./lsspd2011/lsspd2011_optim_prior-point.yaml 982018015
+./lsspd2011/lsspd2011_optim_prior-vague.yaml 982018016
+
+./rwae/rwae_eval_design-haopt_prior-ha.yaml 982018017
+./rwae/rwae_eval_design-haopt_prior-va.yaml 982018018
+./rwae/rwae_eval_design-laopt_prior-la.yaml 982018019
+./rwae/rwae_eval_design-laopt_prior-va.yaml 982018020
+./rwae/rwae_eval_design-maopt_prior-ma.yaml 982018021
+./rwae/rwae_eval_design-maopt_prior-va.yaml 982018022
+./rwae/rwae_eval_design-ref_prior-ha.yaml 982018023
+./rwae/rwae_eval_design-ref_prior-la.yaml 982018024
+./rwae/rwae_eval_design-ref_prior-ma.yaml 982018025
+./rwae/rwae_eval_design-ref_prior-va.yaml 982018026
+./rwae/rwae_eval_design-vaopt_prior-ha.yaml 982018027
+./rwae/rwae_eval_design-vaopt_prior-la.yaml 982018028
+./rwae/rwae_eval_design-vaopt_prior-ma.yaml 982018029
+./rwae/rwae_eval_design-vaopt_prior-va.yaml 982018030
+./rwae/rwae_optim_prior-ha.yaml 982018031
+./rwae/rwae_optim_prior-la.yaml 982018032
+./rwae/rwae_optim_prior-ma.yaml 982018033
+./rwae/rwae_optim_prior-va.yaml 982018034

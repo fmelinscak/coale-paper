@@ -1,0 +1,1 @@
+get-git-info-alt
