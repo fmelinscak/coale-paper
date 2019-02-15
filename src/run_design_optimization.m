@@ -208,6 +208,8 @@ end
 % Output data trace if necessary
 if store_user_data_trace
     outputs = tmp_outputs;
+else
+    outputs = [];
 end
 
 end
