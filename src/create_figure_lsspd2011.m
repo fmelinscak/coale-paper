@@ -117,6 +117,14 @@ cfg.linestyle_altmod = '--';
 cfg.x_ticks = [30:30:120];
 cfg.n_trials_stage = [60, 60];
 cfg.input_patterns = {[1 0], [0 1]};
+cfg.bic_pos = repmat(struct('x', 60, 'y', 0.5),... 
+    n_design_evals, length(MODEL_LABELS)); % Default positions for BIC annotation
+cfg.bic_pos(1,1) = struct('x', 30, 'y', 0.45);
+cfg.bic_pos(1,2) = struct('x', 90, 'y', 0.85);
+cfg.bic_pos(2,1) = struct('x', 30, 'y', 0.40);
+cfg.bic_pos(2,2) = struct('x', 90, 'y', 0.40);
+cfg.bic_pos(3,1) = struct('x', 30, 'y', 0.85);
+cfg.bic_pos(3,2) = struct('x', 30, 'y', 0.30);
 
 % Create background axis to draw into
 h_bgax = axes(h_fig, 'Position', [0.45, 0, 0.55, 1],...
@@ -131,10 +139,10 @@ cfg.h_bgax = h_bgax;
 addABCs(h_bgax, [0.03; -0.015], 20, 'C');
 
 %% Save figure in various formats to disk
-filepath = fullfile(FIGURES_PATH, 'figure_lsspd2011');
-
-% Save in vector formats
-export_fig(h_fig, filepath, '-eps', '-pdf', '-nocrop', '-q101', '-painters')
-
-% Save in bitmap formats
-export_fig(h_fig, filepath, '-png', '-tiff', '-nocrop', '-m3.75')
+% filepath = fullfile(FIGURES_PATH, 'figure_lsspd2011');
+% 
+% % Save in vector formats
+% export_fig(h_fig, filepath, '-eps', '-pdf', '-nocrop', '-q101', '-painters')
+% 
+% % Save in bitmap formats
+% export_fig(h_fig, filepath, '-png', '-tiff', '-nocrop', '-m3.75')

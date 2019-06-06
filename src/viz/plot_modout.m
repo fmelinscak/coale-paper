@@ -48,7 +48,10 @@ eval_modout(n_design_evals) = struct(...
     'n_exp', [],...
     'n_trials', [],...
     'modout_all', [],...
-    'modout_avg', []);
+    'modout_avg', [],...
+    'bic_avg', [],...
+    'bic_diff_true_alt_avg', [],...
+    'bic_diff_true_alt_sem', []);
 
 for i_eval = 1 : n_design_evals
     % Get current eval info
@@ -59,13 +62,21 @@ for i_eval = 1 : n_design_evals
     n_trials = eval_info.results_eval.outputs.data(1).nTrials;
     
     % Calculate outputs for given input patterns and true-fitted model
-    % combinations
+    % combinations (and the BICs)
     input_pat_trialwise = cellfun(...
         @(pat) repmat(pat, n_trials, 1),...
         input_patterns, ...
         'UniformOutput', false);
     modout_all = cell(2, 2); % All model outputs
     modout_avg = cell(2, 2); % Outputs averaged over exprmnts
+    
+    bic_all = cell(2, 2); % All model BICs
+    bic_avg = nan(2, 2); % Model BICs averaged over experiments
+    bic_std = nan(2, 2); % SEM of the BICs (over experiments)
+    bic_diff_true_alt_avg = nan(1, 2); % Diff. avg. between the true and
+                                       % alternative model BIC 
+                                       % (under both ground truth models)
+    bic_diff_true_alt_sem = nan(1, 2); % Std. err. of the mean difference
     
     for i_model_sim_pair = 1 : 2 % True model
         for i_model_fit_pair = 1 : 2 % Alternative model
@@ -76,6 +87,10 @@ for i_eval = 1 : n_design_evals
             % Initialize outputs results for all input patterns
             modout_all{i_model_sim_pair, i_model_fit_pair} = ...
                 nan(n_trials, n_input_pats, n_exp);
+            
+            % Initialize model BIC for all experiments
+            bic_all{i_model_sim_pair, i_model_fit_pair} = ...
+                nan(1, n_exp);
             
             % Loop over experiments
             for i_exp = 1 : n_exp
@@ -112,18 +127,43 @@ for i_eval = 1 : n_design_evals
                 modout_all{i_model_sim_pair, i_model_fit_pair}(:, :, i_exp) =...
                     modout_exp;
                 
+                % Get model BIC of the experiment
+                bic_all{i_model_sim_pair, i_model_fit_pair}(i_exp) = ...
+                    curr_fitting_results.bic;
+                
             end
             
             % Average responses over experiments using a trim mean
             modout_avg{i_model_sim_pair, i_model_fit_pair} =...
                 trimmean(modout_all{i_model_sim_pair, i_model_fit_pair}, 10, 3);
+            
+            % Summarize BICs over experiments
+            bic_avg(i_model_sim_pair, i_model_fit_pair) = ...
+                mean(bic_all{i_model_sim_pair, i_model_fit_pair});
+            bic_std(i_model_sim_pair, i_model_fit_pair) = ...
+                std(bic_all{i_model_sim_pair, i_model_fit_pair});         
+        end
+        
+        % Summarize BIC difference betweeen the true and alternative model
+        if i_model_sim_pair == 1
+            bic_diff_true_alt_avg(1) = bic_avg(1,1) - bic_avg(1,2);
+            bic_diff_true_alt_sem(1) = ...
+                sqrt((bic_std(1,1).^2 + bic_std(1,2).^2)/n_exp);
+        else
+            bic_diff_true_alt_avg(2) = bic_avg(2,2) - bic_avg(2,1);
+            bic_diff_true_alt_sem(2) = ...
+                sqrt((bic_std(2,2).^2 + bic_std(2,1).^2)/n_exp);
         end
     end
-            
+    
     eval_modout(i_eval).n_exp = n_exp;
     eval_modout(i_eval).n_trials = n_trials;
     eval_modout(i_eval).modout_all = modout_all;
     eval_modout(i_eval).modout_avg = modout_avg;
+    eval_modout(i_eval).bic_all = bic_all;
+    eval_modout(i_eval).bic_avg = bic_avg;
+    eval_modout(i_eval).bic_diff_true_alt_avg = bic_diff_true_alt_avg;
+    eval_modout(i_eval).bic_diff_true_alt_sem = bic_diff_true_alt_sem;
 end
 
 %%  Plot average model outputs
@@ -137,6 +177,7 @@ design_labels = cfg.design_labels;
 cue_labels = cfg.cue_labels;
 n_trials_stage = cfg.n_trials_stage;
 n_stages = numel(n_trials_stage);
+bic_pos = cfg.bic_pos;
 
 % If the axes handle is given use it, otherwise create a new figure
 if isfield(cfg, 'h_bgax') && ishandle(cfg.h_bgax)
@@ -174,6 +215,8 @@ for i_eval = 1 : n_design_evals
     % Get data for plotting
     curr_modout_avg = eval_modout(i_eval).modout_avg;
     curr_n_trials = eval_modout(i_eval).n_trials;
+    curr_bic_diff_true_alt_avg = eval_modout(i_eval).bic_diff_true_alt_avg;
+    curr_bic_diff_true_alt_sem = eval_modout(i_eval).bic_diff_true_alt_sem;
     
     % Plot two subplots for each model being assumed true
     for i_model_sim_pair = 1 : 2
@@ -238,6 +281,17 @@ for i_eval = 1 : n_design_evals
             end
         end
         
+        % Display BIC summary
+        ax_x = bic_pos(i_eval, i_model_sim_pair).x;
+        ax_y = bic_pos(i_eval, i_model_sim_pair).y;
+        str = sprintf('\\DeltaBIC = %.1f \\pm %.1f', ...
+            curr_bic_diff_true_alt_avg(i_model_sim_pair),...
+            curr_bic_diff_true_alt_sem(i_model_sim_pair));
+            
+        text(ax_x, ax_y, str,... 
+                    'HorizontalAlignment', 'center',...
+                    'FontSize', 9)
+
         % Plot design label and ylabel if this is the first plot in the row
         if i_model_sim_pair == 1 
             des_str = sprintf('\\bf\\fontsize{12}Design: %s', design_labels{i_eval});
