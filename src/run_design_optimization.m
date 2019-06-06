@@ -43,31 +43,9 @@ try % Catch any top-level errors so the function exits with failure code
     %% Prepare configuration
     cfg_optim_parsed = parse_optim_cfg(cfg_optim);
     sim_info.cfg_optim_parsed = cfg_optim_parsed; % Keep the parsed version of the cfg just for debugging purposes (TODO: remove)
-    
-    %% Get objective function handle
-    obj_func_handle = @(d) obj_func(d, cfg_optim_parsed);
-    
-    %% Get optimizable design variables
-    n_desvars_optim = numel(cfg_optim.exp_design.desvars_optim);
-    desvars_optim(n_desvars_optim, 1) = optimizableVariable; % Initialize array of optimizable variables
-    for i_var = 1 : n_desvars_optim
-        curr_var = cfg_optim.exp_design.desvars_optim{i_var};
-        desvars_optim(i_var) = optimizableVariable(curr_var.name, curr_var.range, 'Type', curr_var.type);
-    end
-    
-    %% Get Bayesian optimization options into Name-Value-pair format
-    optim_opts = cfg_optim_parsed.optim_opts; % Get optimization options
-    if isfield(optim_opts, 'store_user_data_trace')
-        optim_opts = rmfield(optim_opts, 'store_user_data_trace'); % `store_user_data_trace` is not an option of the `bayesopt` function
-    end
-    optim_opt_names = fieldnames(optim_opts)';
-    
-    optim_opt_values = struct2cell(optim_opts)';
-    optim_opt = [optim_opt_names; optim_opt_values]; % Combine names and values into a single cell array
-    optim_opt = optim_opt(:); % Collate the name-value pairs (by alternating between them) into a single vector
-    
+       
     %% Run Bayesian optimization
-    results_optim = bayesopt(obj_func_handle, desvars_optim, optim_opt{:});
+    results_optim = optimize_design(cfg_optim_parsed);
     
     %% Collect results
     sim_info_boptobj = sim_info;
@@ -173,46 +151,6 @@ end
 
 end
 
-function [loss, constraints, outputs] = obj_func(desvars, cfg_optim)
-%obj_func is the optimizable wrapper for the 'evaluate_design' function
-
-% Merge constant and optimizable design variables
-merged_desvars = table2struct(desvars); % Add current desvar values
-
-desvars_const = cfg_optim.desvars_const;
-const_names = fieldnames(desvars_const);
-for i_const = 1 : numel(const_names) % Copy the constants into merged design variables struct
-    const_name = const_names{i_const};
-    merged_desvars.(const_name) = ...
-        desvars_const.(const_name);
-end
-
-% Determine if user data trace is stored
-optim_opts = cfg_optim.optim_opts; % Get optimization options
-if isfield(optim_opts, 'store_user_data_trace')
-    store_user_data_trace = optim_opts.store_user_data_trace;
-else
-    store_user_data_trace = false; % Results of all the simulations are not stored unless requested (can result in large files and slow saving)
-end
-
-% Evaluate the design
-[loss, constraints, tmp_outputs] = evaluate_design(...
-    cfg_optim.exp_design_func, merged_desvars,...
-    cfg_optim.eval_opts.n_exp, cfg_optim.desvars_const.n_sub, ...
-    cfg_optim.models_sim, cfg_optim.prior_sim,...
-    cfg_optim.models_fit, cfg_optim.prior_fit,...
-    cfg_optim.params_fit_fixed,...
-    cfg_optim.criterion_func, cfg_optim.criterion_options,...
-    cfg_optim.eval_opts.verbose, cfg_optim.eval_opts.parallel);
-
-% Output data trace if necessary
-if store_user_data_trace
-    outputs = tmp_outputs;
-else
-    outputs = [];
-end
-
-end
 
 
 
