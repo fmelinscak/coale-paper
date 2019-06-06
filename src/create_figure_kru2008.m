@@ -103,6 +103,15 @@ cfg.linestyle_altmod = '--';
 cfg.x_ticks = [30:30:120];
 cfg.n_trials_stage = [60, 60];
 cfg.input_patterns = {[1 0], [0 1], [1 1]};
+cfg.bic_pos = repmat(struct('x', 60, 'y', 0.5),... 
+    n_design_evals, length(MODEL_LABELS)); % Default positions for BIC annotation
+cfg.bic_pos(1,1) = struct('x', 30, 'y', 0.85);
+cfg.bic_pos(1,2) = struct('x', 30, 'y', 0.85);
+cfg.bic_pos(2,1) = struct('x', 30, 'y', 0.85);
+cfg.bic_pos(2,2) = struct('x', 95, 'y', 0.15);
+cfg.bic_pos(3,1) = struct('x', 32, 'y', 0.45);
+cfg.bic_pos(3,2) = struct('x', 32, 'y', 0.45);
+
 
 % Create background axis to draw into
 h_bgax = axes(h_fig, 'Position', [0.45, 0, 0.55, 1],...
