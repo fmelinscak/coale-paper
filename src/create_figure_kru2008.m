@@ -58,13 +58,17 @@ cfg.model_labels = MODEL_LABELS;
 cfg.xlab_position = [3.5 -12];
 cfg.legend_position = [0.2979    0.6152    0.0800    0.0839];
 cfg.show_title = false;
+cfg.design_pairs = { % Odds ratio of d1 over d2 will be computed
+    [2, 1];
+    [3, 1];
+    [3, 2]};
 
 % Create axis to draw into
 h_ax = axes(h_fig, 'OuterPosition', [0, 0.5, 0.45, 0.5]);
 cfg.h_ax = h_ax;
 
 % Plot
-[~, stats_acc] = plot_modsel_acc(all_evals_info, cfg);
+[~, stats_acc, stats_or] = plot_modsel_acc(all_evals_info, cfg);
 
 % Add panel label
 addABCs(h_ax, [-0.05; 0.02], 20, 'A');
