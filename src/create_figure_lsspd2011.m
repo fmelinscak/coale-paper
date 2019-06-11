@@ -143,10 +143,10 @@ cfg.h_bgax = h_bgax;
 addABCs(h_bgax, [0.03; -0.015], 20, 'C');
 
 %% Save figure in various formats to disk
-% filepath = fullfile(FIGURES_PATH, 'figure_lsspd2011');
-% 
-% % Save in vector formats
-% export_fig(h_fig, filepath, '-eps', '-pdf', '-nocrop', '-q101', '-painters')
-% 
-% % Save in bitmap formats
-% export_fig(h_fig, filepath, '-png', '-tiff', '-nocrop', '-m3.75')
+filepath = fullfile(FIGURES_PATH, 'figure_lsspd2011');
+
+% Save in vector formats
+export_fig(h_fig, filepath, '-eps', '-pdf', '-nocrop', '-q101', '-painters')
+
+% Save in bitmap formats
+export_fig(h_fig, filepath, '-png', '-tiff', '-nocrop', '-m3.75')
