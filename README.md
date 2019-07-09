@@ -57,10 +57,9 @@ In particular, the optimized values of the design variables are stored in `sim_i
 
 ### Optimizing/evaluating custom designs
 
-If you wish to evaluate your own designs or obtain optimized designs for a novel problem, you will need to write your own configuration files.
-Configuration files are written in the human-friendly [YAML](https://yaml.org/) syntax.
-
-The suggested workflow is as follows:
+If you wish to evaluate your own designs or obtain optimized designs for a novel problem, you can achieve this either by directly calling the MATLAB functions in your own scripts or by using configuration files (in the [YAML](https://yaml.org/) syntax) together with existing scripts.
+If you wish to use the approach of directly calling the provided functions in your own scripts, check the workflow described in the tutorial notebook (you can find it both in the original MATLAB LiveScript format and as a rendered HTML in the `docs/tutorial/` directory).
+If you decide to use the configuration-based approach, the proposed workflow is:
 
 1. Evaluate any existing reference manual designs. 
 For each design you will need to write an evaluating config file; for examples see `config/{scenario}/{scenario}_eval_*.yaml` files.
@@ -83,6 +82,10 @@ If your evaluation/design problem requires additional experimental structures, m
 |   |-- lsspd2011/
 |   |-- rwae/
 |   `-- random_seeds.txt # Manually recorded seeds used in simulations
+├── docs
+│   `-- tutorial
+│       |-- tutorial_scenario2.mlx # MATLAB LiveScript tutorial notebook
+│       `-- tutorial_scenario2.html # Rendered HTML of the tutorial notebook
 |-- external/ # Third-party packages
 |-- [results/] # Results in .mat files (only exists after running the evaluations/optimizations)
 |   |-- kru2008/
