@@ -51,10 +51,8 @@ if ~exist('verbose', 'var') || isempty(verbose)
     verbose = true;
 end
 
-if ~exist('parallel', 'var') || isempty(verbose) || parallel == false
-    max_parfor_workers = 0; % Serial execution
-elseif parallel == true
-    max_parfor_workers = Inf; % Use as many workers as possible in parallel
+if ~exist('parallel', 'var') || isempty(parallel)
+    parallel = false; % Serial execution by default
 end
 
 if ~exist('nstarts', 'var')
@@ -66,21 +64,33 @@ nModels = length(models);
 
 for iModel = 1 : nModels  
     currModel = models(iModel);
+    currModelName = currModel.name;
     currParams = params{iModel};
     currParamsFixed = params_fixed{iModel};
     
-    parfor (iExp = 1 : nExperiments, max_parfor_workers)
-        currData = data(:, iExp);
-        if verbose
-            fprintf('Fitting model %s to exp. %d ...\n', currModel.name, iExp)
+    % Specify log-likelihood function
+    loglik_func = @(x, data) ...
+        currModel.loglik_func(x, data, currParams, currParamsFixed);   
+    
+    % Fit model
+    if parallel
+        parfor iExp = 1 : nExperiments
+            currData = data(:, iExp);
+            if verbose
+                fprintf('Fitting model %s to exp. %d ...\n', currModelName, iExp)
+            end
+            currResults = mfit_optimize(loglik_func, currParams, currData, nstarts, verbose);
+            results(iExp, iModel) = currResults;
         end
-        % Fit model
-        loglik_func = ... % Get log-likelihood function
-            @(x, data) currModel.loglik_func(x, data, currParams, currParamsFixed);   
-        
-        currResults = mfit_optimize(loglik_func, currParams, currData, nstarts, verbose); 
-       
-        results(iExp, iModel) = currResults;
+    else
+        for iExp = 1 : nExperiments
+            currData = data(:, iExp);
+            if verbose
+                fprintf('Fitting model %s to exp. %d ...\n', currModelName, iExp)
+            end
+            currResults = mfit_optimize(loglik_func, currParams, currData, nstarts, verbose);
+            results(iExp, iModel) = currResults;
+        end
     end
         
 end

@@ -1,4 +1,4 @@
-function [h_fig, eval_stats] = plot_modsel_acc(all_evals_info, cfg)
+function [h_fig, eval_stats, eval_stats_diff] = plot_modsel_acc(all_evals_info, cfg)
 %PLOT_MODSEL_ACC plots model selection accuracy (per model and average)
 % across different exp. designs that were evaluated. 
 %
@@ -38,6 +38,9 @@ n_design_evals = numel(all_evals_info);
 eval_stats(n_design_evals) = struct(...
     'n_models', [],...
     'n_exp', [],...
+    'n_exp_total', [],...
+    'modsel_n_correct', [],...
+    'modsel_n_correct_total', [],...
     'modsel_acc', [],...
     'modsel_acc_ci', [],...
     'modsel_acc_avg', [],...
@@ -50,21 +53,89 @@ for i_eval = 1 : n_design_evals
     % Get problem size variables
     curr_n_models = numel(eval_info.model_space); % Number of models
     curr_n_exp = eval_info.sim_run.n_exp; % Number of experiments simulated per model
+    curr_n_exp_total = curr_n_exp * curr_n_models; % Total number of simulated experiments
 
     % Extract model selection accuracies for evaluated design
-    adjusted_conf_matrix = eval_info.results_eval.outputs.loss_info.adjusted_conf_matrix;
-
-    % Compute the model-wise selection accuracies and CIs for the design
-    [modsel_acc, modsel_acc_ci] = binofit(diag(adjusted_conf_matrix), curr_n_exp);
-    [modsel_acc_avg, modsel_acc_avg_ci] = binofit(sum(diag(adjusted_conf_matrix)),curr_n_exp*curr_n_models);
+    orig_conf_matrix = eval_info.results_eval.outputs.loss_info.confusion_matrix;
     
+    % Get number of correct selections (model-wise and total)
+    modsel_n_correct = diag(orig_conf_matrix);
+    modsel_n_correct_total = sum(modsel_n_correct);
+       
+    % Compute the model-wise selection accuracies and CIs for the design
+    [modsel_acc, modsel_acc_ci] = binofit(modsel_n_correct, curr_n_exp);
+    [modsel_acc_avg, modsel_acc_avg_ci] = ...
+        binofit(modsel_n_correct_total, curr_n_exp_total);
+      
+    % Store results
     eval_stats(i_eval) = struct(...
         'n_models', curr_n_models,...
         'n_exp', curr_n_exp,...
+        'n_exp_total', curr_n_exp_total,...
+        'modsel_n_correct', modsel_n_correct,...
+        'modsel_n_correct_total', modsel_n_correct_total,...
         'modsel_acc', modsel_acc,...
         'modsel_acc_ci', modsel_acc_ci,...
         'modsel_acc_avg', modsel_acc_avg,...
         'modsel_acc_avg_ci', modsel_acc_avg_ci);
+end
+
+% Compute the ratios of correct model selection odds between design pairs
+design_pairs = cfg.design_pairs;
+n_des_pairs = size(design_pairs);
+eval_stats_diff(n_des_pairs) = struct(...
+    'n_exp_total', [],...
+    'modsel_n_correct_total', [],...
+    'or_d1_d2', [],...
+    'or_ci', []);
+
+for i_pair = 1 : n_des_pairs
+    % Initialize results for the pair
+        n_exp_total = nan(2,1);
+        modsel_n_correct_total = nan(2,1);
+        % Iterate over both designs
+        for i_des = 1 : 2
+            % Get design index
+            idx_des = design_pairs{i_pair}(i_des);
+             
+            % Get current eval info
+            curr_eval_stats = eval_stats(idx_des);
+            
+            % Extract total number of simulations and total number of correct
+            % model selections
+            n_exp_total(i_des) = curr_eval_stats.n_exp_total;
+            modsel_n_correct_total(i_des) = ...
+                curr_eval_stats.modsel_n_correct_total; 
+        end
+        
+        % Construct contingency table
+        % (Note: rows - design 2, design 1; columns - incorrect, correct;
+        % this will yield the desired OR_des1_des2)
+        ct = [
+            n_exp_total(2) - modsel_n_correct_total(2), modsel_n_correct_total(2);
+            n_exp_total(1) - modsel_n_correct_total(1), modsel_n_correct_total(1)
+        ];
+    
+        % Perform the Haldane-Anscombe correction (adding 0.5 observations
+        % to each cell) if any of the cells are 0
+        if any(ct(:) == 0)
+            ct = ct + 0.5;
+        end
+            
+        % Calculate the OR and its CI from the contingency table
+        alpha = 0.05;
+        or = ct(1,1)*ct(2,2)/ct(1,2)/ct(2,1);
+        se = sqrt(1/ct(1,1)+1/ct(1,2)+1/ct(2,1)+1/ct(2,2));
+        LB = or*exp(-norminv(1-alpha/2)*se);
+        UB = or*exp(norminv(1-alpha/2)*se);
+        or_CI = [LB UB];
+        
+        % Store results
+        eval_stats_diff(i_pair) = struct(...
+            'n_exp_total', n_exp_total,...
+            'modsel_n_correct_total', modsel_n_correct_total,...
+            'or_d1_d2', or,...
+            'or_ci', or_CI);       
 end
 
 % Validate inputs
