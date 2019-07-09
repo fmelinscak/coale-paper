@@ -6,7 +6,7 @@ The associated Open Science Framework project with the data (simulation results)
 
 ## Getting started
 
-To run the code you will need MATLAB 2016b or newer, with installed `Statistics and Machine Learning Toolbox` and `Parallel Computing Toolbox`.
+To run the code you will need MATLAB 2016b or newer, with installed `Statistics and Machine Learning Toolbox` and `Parallel Computing Toolbox` (if you wish to run the computations in parallel, which is recommended).
 The results and figures from the paper paper can be reproduced by manually running MATLAB scripts, but to reproduce them automatically, using the provided Makefile, you will need [GNU Make](https://www.gnu.org/software/make/) (on Windows you can obtain GNU Make via [Chocolatey](https://chocolatey.org/packages/make)).
 
 The code was tested with two software configurations:
