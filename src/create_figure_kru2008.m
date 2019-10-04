@@ -2,7 +2,9 @@
 
 %% Imports 
 addpath(genpath(fullfile('.'))); % Add the src folder and subfolders
-% Add graphical utility tools
+addpath(fullfile('..', 'external', 'myBinomTest')) % Add binomial test
+addpath(fullfile('..', 'external', 'prop_test')) % Add proportion test
+% Add graphical utility tools 
 addpath(fullfile('..', 'external', 'altmany-export_fig'))
 addpath(fullfile('..', 'external', 'errorbar_groups'))
 addpath(fullfile('..', 'external', 'GridLegend'))
