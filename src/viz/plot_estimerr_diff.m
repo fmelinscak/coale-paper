@@ -27,6 +27,8 @@ function [h_fig, eval_stats] = plot_estimerr_diff(all_evals_info, cfg)
 %           superior (i.e. has lower abs. err.).
 %       .prob_ci [lower;upper] : Confidence interval on the prob. of
 %           superiority.
+%       .p_wsr [in [0,1]] : P-value from Wilcoxon rank-sum test.
+%       .p_bt [in [0,1]] : P-value from bootstrapped t-test.
 %       .bootstats [n_boot x 1] : Probability of superiority for all the
 %           bootstrap samples.
 
@@ -40,6 +42,8 @@ eval_stats(n_prior, n_des_pairs) = struct(...
     'abs_err', [],...
     'prob_d1_superior', [],...
     'prob_ci', [],...
+    'p_wsr', [],...
+    'p_bt', [],...
     'bootstats', []);
 
 for i_prior = 1 : n_prior
@@ -69,11 +73,17 @@ for i_prior = 1 : n_prior
         [prob_d1_superior, prob_ci, bootstats] = ...
             cles(abs_err{2}', abs_err{1}', cfg.cles_opts); % The two samples are reversed because the design is superior when its error is smaller
         
+        % Compute p-values
+        p_wsr = ranksum(abs_err{2}', abs_err{1}');
+        p_bt = bootstrp_ttest(abs_err{2}', abs_err{1}', 1000);
+        
         % Collect results
         eval_stats(i_prior,i_pair).n_exp = n_exp;
         eval_stats(i_prior,i_pair).abs_err = abs_err;
         eval_stats(i_prior,i_pair).prob_d1_superior = prob_d1_superior;
         eval_stats(i_prior,i_pair).prob_ci = prob_ci;
+        eval_stats(i_prior,i_pair).p_wsr = p_wsr;
+        eval_stats(i_prior,i_pair).p_bt = p_bt;
         eval_stats(i_prior,i_pair).bootstats = bootstats;
     end
 end
