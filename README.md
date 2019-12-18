@@ -1,5 +1,7 @@
 # Computational optimization of associative learning experiments
 
+[![DOI](https://zenodo.org/badge/166025268.svg)](https://zenodo.org/badge/latestdoi/166025268)
+
 Code accompanying the paper ["Computational optimization of associative learning experiments" (Melinscak and Bach, 2019)](https://doi.org/10.1371/journal.pcbi.1007593).
 The associated Open Science Framework project with the data (simulation results) can be found at <https://osf.io/5ktaf/>.
 
