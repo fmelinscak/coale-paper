@@ -111,7 +111,7 @@ for i_eval = 1 : n_design_evals
     axis image
     set(h_ax, 'XTick', [], 'YTick', [])
         
-    title(design_labels{i_eval})
+    title(design_labels{i_eval}, 'FontSize', 8)
 
 end
 

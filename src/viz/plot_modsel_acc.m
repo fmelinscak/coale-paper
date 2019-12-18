@@ -251,7 +251,7 @@ if cfg.show_title
     title(sprintf('Probability of selecting the true model\n(%d simulations per model)', n_exp))
 end
 
-set(gca, 'FontSize', 11)
+set(gca, 'FontSize', 10)
 
 
 end

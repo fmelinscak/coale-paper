@@ -192,7 +192,7 @@ for i_eval = 1 : n_design_evals
     % Move the title up to make room for the stage annotation
     title_pos = get(h_title, 'Position');
     set(h_title,'Position',title_pos + [0 0.1 0],...
-        'FontSize', 12)
+        'FontSize', 11)
     
     % Plot stage label and divider
     for i_stage = 1 : n_stages
@@ -210,7 +210,7 @@ for i_eval = 1 : n_design_evals
     end
         
     hold off
-    set(gca, 'FontSize', 12)
+    set(gca, 'FontSize', 11)
     h_x_ticks = get(gca, 'XAxis');
     set(h_x_ticks, 'FontSize', 11);
 end
